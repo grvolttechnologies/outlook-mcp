@@ -1,0 +1,23 @@
+{
+  "name": "outlook-mcp",
+  "version": "1.0.0",
+  "main": "server/index.js",
+  "type": "module",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["mcp", "outlook", "microsoft-graph", "claude"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/identity": "^4.10.2",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@modelcontextprotocol/sdk": "^1.15.0"
+  },
+  "devDependencies": {},
+  "description": "Microsoft Outlook MCP server for Claude Desktop"
+}
