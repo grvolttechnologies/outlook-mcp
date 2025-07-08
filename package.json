@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node server/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node server/test/testGraphClient.js",
+    "test:graph": "node server/test/testGraphClient.js"
   },
   "keywords": [
     "mcp",

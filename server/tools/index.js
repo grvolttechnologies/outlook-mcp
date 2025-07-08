@@ -24,19 +24,20 @@ export async function listEmailsTool(authManager, args) {
   const { folder = 'inbox', limit = 10, filter } = args;
 
   try {
-    const graphClient = await authManager.ensureAuthenticated();
+    await authManager.ensureAuthenticated();
+    const graphApiClient = authManager.getGraphApiClient();
     
-    let query = graphClient
-      .api('/me/mailFolders/' + folder + '/messages')
-      .top(limit)
-      .select('subject,from,receivedDateTime,bodyPreview,isRead')
-      .orderby('receivedDateTime desc');
+    const options = {
+      select: 'subject,from,receivedDateTime,bodyPreview,isRead',
+      top: limit,
+      orderby: 'receivedDateTime desc',
+    };
 
     if (filter) {
-      query = query.filter(filter);
+      options.filter = filter;
     }
 
-    const result = await query.get();
+    const result = await graphApiClient.makeRequest(`/me/mailFolders/${folder}/messages`, options);
 
     const emails = result.value.map(email => ({
       id: email.id,
@@ -65,7 +66,8 @@ export async function sendEmailTool(authManager, args) {
   const { to, subject, body, bodyType = 'text', cc = [], bcc = [] } = args;
 
   try {
-    const graphClient = await authManager.ensureAuthenticated();
+    await authManager.ensureAuthenticated();
+    const graphApiClient = authManager.getGraphApiClient();
 
     const message = {
       subject,
@@ -90,7 +92,7 @@ export async function sendEmailTool(authManager, args) {
       }));
     }
 
-    await graphClient.api('/me/sendMail').post({
+    await graphApiClient.postWithRetry('/me/sendMail', {
       message,
       saveToSentItems: true,
     });
@@ -112,22 +114,21 @@ export async function listEventsTool(authManager, args) {
   const { startDateTime, endDateTime, limit = 10, calendar } = args;
 
   try {
-    const graphClient = await authManager.ensureAuthenticated();
+    await authManager.ensureAuthenticated();
+    const graphApiClient = authManager.getGraphApiClient();
 
-    let endpoint = calendar ? `/me/calendars/${calendar}/events` : '/me/events';
-    let query = graphClient
-      .api(endpoint)
-      .top(limit)
-      .select('subject,start,end,location,attendees,bodyPreview')
-      .orderby('start/dateTime');
+    const endpoint = calendar ? `/me/calendars/${calendar}/events` : '/me/events';
+    const options = {
+      select: 'subject,start,end,location,attendees,bodyPreview',
+      top: limit,
+      orderby: 'start/dateTime',
+    };
 
     if (startDateTime && endDateTime) {
-      query = query.filter(
-        `start/dateTime ge '${startDateTime}' and end/dateTime le '${endDateTime}'`
-      );
+      options.filter = `start/dateTime ge '${startDateTime}' and end/dateTime le '${endDateTime}'`;
     }
 
-    const result = await query.get();
+    const result = await graphApiClient.makeRequest(endpoint, options);
 
     const events = result.value.map(event => ({
       id: event.id,
@@ -156,7 +157,8 @@ export async function createEventTool(authManager, args) {
   const { subject, start, end, body = '', location = '', attendees = [] } = args;
 
   try {
-    const graphClient = await authManager.ensureAuthenticated();
+    await authManager.ensureAuthenticated();
+    const graphApiClient = authManager.getGraphApiClient();
 
     const event = {
       subject,
@@ -181,7 +183,7 @@ export async function createEventTool(authManager, args) {
       }));
     }
 
-    const result = await graphClient.api('/me/events').post(event);
+    const result = await graphApiClient.postWithRetry('/me/events', event);
 
     return {
       content: [

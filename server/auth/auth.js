@@ -3,6 +3,7 @@ import { Client } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials/index.js';
 import { TokenManager } from './tokenManager.js';
 import { authConfig } from './config.js';
+import { GraphApiClient } from '../graph/graphClient.js';
 import http from 'http';
 import url from 'url';
 import crypto from 'crypto';
@@ -14,6 +15,7 @@ export class OutlookAuthManager {
     this.clientSecret = clientSecret;
     this.tokenManager = new TokenManager(clientId);
     this.graphClient = null;
+    this.graphApiClient = null;
     this.isAuthenticated = false;
     this.authenticationRecord = null;
   }
@@ -222,6 +224,10 @@ export class OutlookAuthManager {
       },
       defaultVersion: 'v1.0',
     });
+
+    // Initialize the enhanced GraphApiClient
+    this.graphApiClient = new GraphApiClient(this);
+    await this.graphApiClient.initialize();
   }
 
   async validateAuthentication() {
@@ -271,9 +277,17 @@ export class OutlookAuthManager {
     return this.graphClient;
   }
 
+  getGraphApiClient() {
+    if (!this.graphApiClient) {
+      throw new Error('Not authenticated. Call authenticate() first.');
+    }
+    return this.graphApiClient;
+  }
+
   async logout() {
     await this.tokenManager.clearTokens();
     this.graphClient = null;
+    this.graphApiClient = null;
     this.isAuthenticated = false;
     this.authenticationRecord = null;
   }
