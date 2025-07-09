@@ -50,6 +50,7 @@ temp/
 
 # Authentication
 tokens/
+.tokens/
 .credentials/
 
 # Package lock files (optional - uncomment if preferred)
