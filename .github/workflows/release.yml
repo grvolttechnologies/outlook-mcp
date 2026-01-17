@@ -32,10 +32,12 @@ jobs:
         run: dxt pack . outlook-mcp.dxt
 
       - name: Generate SHA256 checksum
+        id: checksum
         run: |
           sha256sum outlook-mcp.dxt > outlook-mcp.dxt.sha256
-          echo "SHA256 checksum:"
-          cat outlook-mcp.dxt.sha256
+          HASH=$(cut -d ' ' -f 1 outlook-mcp.dxt.sha256)
+          echo "SHA256=$HASH" >> $GITHUB_OUTPUT
+          echo "SHA256 checksum: $HASH"
 
       - name: Extract version from tag
         id: version
@@ -53,9 +55,14 @@ jobs:
             2. In Claude Desktop: **Settings** → **Extensions** → **Install from file**
             3. Enter your Azure Client ID and Tenant ID when prompted
             
+            ### SHA256 Checksum
+            ```
+            ${{ steps.checksum.outputs.SHA256 }}  outlook-mcp.dxt
+            ```
+            
             ### Verify Download (Optional)
             ```bash
-            sha256sum -c outlook-mcp.dxt.sha256
+            echo "${{ steps.checksum.outputs.SHA256 }}  outlook-mcp.dxt" | sha256sum -c
             ```
             
             See [README](https://github.com/XenoXilus/outlook-mcp#readme) for Azure setup instructions.
