@@ -5,7 +5,7 @@ A Model Context Protocol (MCP) server that enables AI assistants to interact wit
 ## Features
 
 - **Email Operations**: Read, search, send, reply to emails and download attachments
-- **SharePoint Integration**: Access SharePoint files via sharing links or direct file IDs
+- **SharePoint Integration**: Access SharePoint files via sharing links or direct file IDs. Download files shared to you via emails. 
 - **Calendar Management**: View and manage calendar events and appointments
 - **Office Document Processing**: Parse PDF, Word, PowerPoint, and Excel files with extracted text content
 - **Large File Support**: Automatic handling of files that exceed MCP response size limits
@@ -92,71 +92,50 @@ export AZURE_CLIENT_ID="your-client-id"
 export AZURE_TENANT_ID="your-tenant-id"
 ```
 
-### Claude Desktop Integration
+### Installing as DXT Extension
 
-Add to your Claude Desktop MCP settings:
+**Option 1: Download Pre-built Extension**
+1. Download `outlook-mcp.dxt` from the [Releases page](https://github.com/XenoXilus/outlook-mcp/releases)
+2. In Claude Desktop, go to **Settings** → **Extensions**
+3. Click **Install from file** and select the `.dxt` file
+4. Enter your Azure Client ID, Tenant ID, and optional download directory when prompted
 
-```json
-{
-  "mcpServers": {
-    "outlook": {
-      "command": "node",
-      "args": ["/path/to/outlook-mcp/server/index.js"],
-      "env": {
-        "AZURE_CLIENT_ID": "your-client-id",
-        "AZURE_TENANT_ID": "your-tenant-id",
-        "MCP_OUTLOOK_WORK_DIR": "/path/to/your/work/directory"
-      }
-    }
-  }
-}
-```
+**Option 2: Build from Source**
+1. Clone and install dependencies (see Installation above)
+2. Install the DXT CLI: `npm install -g @anthropic-ai/dxt`
+3. Pack the extension:
+   ```bash
+   dxt pack . outlook-mcp.dxt
+   ```
+4. Install the generated `.dxt` file in Claude Desktop as above
 
-## Usage
+## Example Prompts
 
-### Email Operations
+Once installed, you can ask the AI assistant things like:
 
-```javascript
-// Search for emails
-outlook_search_emails({
-  query: "meeting",
-  from: "user@example.com",
-  limit: 10,
-  folders: ["inbox"]
-})
+**Email Management**
+- "Show me my unread emails from this week"
+- "Find all emails from John about the project proposal"
+- "Send a reply to the last email from Sarah thanking her for the update"
+- "Draft an email to the team summarizing today's meeting"
 
-// Download email attachment
-outlook_download_attachment({
-  messageId: "message-id",
-  attachmentId: "attachment-id",
-  decodeContent: true  // Automatically parse office documents
-})
-```
+**Calendar**
+- "What meetings do I have tomorrow?"
+- "Schedule a 30-minute call with Alex next Tuesday afternoon"
+- "Show me my availability for the rest of the week"
 
-### SharePoint File Access
+**Attachments & SharePoint**
+- "Download and summarize the PDF attachment from the latest email from Finance"
+- "Get the contents of this SharePoint link: [paste link]"
+- "What files were attached to emails from Legal this month?"
 
-```javascript
-// Access SharePoint file via sharing link
-outlook_get_sharepoint_file({
-  sharePointUrl: "https://company.sharepoint.com/:w:/r/sites/...",
-  downloadContent: true
-})
+**Office Document Processing**
 
-// Direct file access
-outlook_get_sharepoint_file({
-  fileId: "file-id",
-  driveId: "drive-id",
-  downloadContent: true
-})
-```
-
-### Office Document Processing
-
-The server automatically detects and processes:
-- **PDF files**: Extract text content
-- **Word documents** (.doc, .docx): Extract text content
-- **PowerPoint presentations** (.ppt, .pptx): Extract text content
-- **Excel spreadsheets** (.xls, .xlsx): Parse and extract data in structured format
+The server automatically parses:
+- **PDF files**: Extracts text content
+- **Word documents** (.docx): Extracts text content
+- **PowerPoint** (.pptx): Extracts slide text
+- **Excel** (.xlsx): Parses data into structured format
 
 ## Authentication
 
@@ -245,12 +224,11 @@ npm run test:graph          # Test Graph API connection
 - **Solution**: Ensure sharing links are valid and user has access permissions
 - **Alternative**: Use direct file ID access if available
 
-## Support / Donate
+## Support
 
 If this tool saved you time, consider supporting the development!
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg)](https://buymeacoffee.com/) 
-*(Replace with your actual link)*
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-ff5f5f?logo=ko-fi)](https://ko-fi.com/xenoxilus)
 
 ## License
 
@@ -262,5 +240,3 @@ MIT License
 2. Create a feature branch
 3. Make changes with tests
 4. Submit a pull request
-
-For detailed development information, see the documentation in the `docs/` directory.
